@@ -65,6 +65,7 @@ type RailItem = {
 
 const STORAGE_KEY = "tbi-english-collocations-progress-v1";
 const PACKAGE_PAGE_SIZE = 10;
+const collocationSorter = new Intl.Collator("en", { sensitivity: "base" });
 
 const emptyProgress: StoredProgress = {
   viewedCards: [],
@@ -235,28 +236,34 @@ function formatDate(value: string) {
 
 function filterCollocations(entries: CollocationEntry[], query: string) {
   const terms = normalizeText(query).split(/\s+/).filter(Boolean);
-
-  if (terms.length === 0) {
-    return entries;
-  }
-
-  return entries.filter((entry) => {
-    const searchable = normalizeText(
-      [
-        entry.headword,
-        entry.partner,
-        entry.fullPhrase,
-        entry.indonesianMeaning,
-        entry.usageNote,
-        entry.commonMistake,
-        entry.exampleSentence,
-        entry.topic,
-        entry.pattern,
-      ].join(" "),
+  const sortByPhrase = (items: CollocationEntry[]) =>
+    [...items].sort((current, next) =>
+      collocationSorter.compare(current.fullPhrase, next.fullPhrase),
     );
 
-    return terms.every((term) => searchable.includes(term));
-  });
+  if (terms.length === 0) {
+    return sortByPhrase(entries);
+  }
+
+  return sortByPhrase(
+    entries.filter((entry) => {
+      const searchable = normalizeText(
+        [
+          entry.headword,
+          entry.partner,
+          entry.fullPhrase,
+          entry.indonesianMeaning,
+          entry.usageNote,
+          entry.commonMistake,
+          entry.exampleSentence,
+          entry.topic,
+          entry.pattern,
+        ].join(" "),
+      );
+
+      return terms.every((term) => searchable.includes(term));
+    }),
+  );
 }
 
 function getStudyPackageStatus(

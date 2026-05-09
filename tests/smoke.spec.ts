@@ -32,6 +32,27 @@ test("search finds phrases, partners, and Indonesian meaning", async ({ page }) 
   await expect(page.getByText(/kagum karena/i)).toBeVisible();
 });
 
+test("search list is alphabetized by collocation phrase", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: /Pencarian/i }).click();
+
+  const phrases = await page
+    .locator(".search-result-row h3")
+    .evaluateAll((nodes) => nodes.map((node) => node.textContent?.trim() ?? ""));
+  const sortedPhrases = [...phrases].sort((current, next) =>
+    current.localeCompare(next, "en", { sensitivity: "base" }),
+  );
+
+  expect(phrases).toEqual(sortedPhrases);
+  expect(phrases.slice(0, 5)).toEqual([
+    "ability to",
+    "absent from",
+    "absorb into",
+    "abstain from",
+    "access to",
+  ]);
+});
+
 test("material and flipcard share package rail behavior", async ({ page }) => {
   await page.goto("/");
   await page.getByRole("button", { exact: true, name: "Materi" }).click();
