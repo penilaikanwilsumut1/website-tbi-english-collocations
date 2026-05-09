@@ -88,6 +88,7 @@ const patternFilters: PatternFilter[] = [
   "noun_preposition",
   "phrasal_verb",
   "prepositional_phrase",
+  "lexical_collocation",
 ];
 
 function isOptionKey(value: unknown): value is OptionKey {
@@ -218,6 +219,7 @@ function getPatternLabel(pattern: CollocationPattern | "mixed") {
     noun_preposition: "Noun + Prep",
     phrasal_verb: "Phrasal/Prep Verb",
     prepositional_phrase: "Prep Phrase",
+    lexical_collocation: "Lexical",
     mixed: "Mixed",
   };
 

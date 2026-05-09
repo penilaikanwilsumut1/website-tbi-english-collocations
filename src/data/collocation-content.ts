@@ -1,11 +1,14 @@
+import { additionalCollocationSeeds } from "./additional-collocation-seeds";
+
 export type CollocationPattern =
   | "adjective_preposition"
   | "verb_preposition"
   | "noun_preposition"
   | "phrasal_verb"
-  | "prepositional_phrase";
+  | "prepositional_phrase"
+  | "lexical_collocation";
 
-export type PartOfSpeech = "adjective" | "verb" | "noun" | "phrase";
+export type PartOfSpeech = "adjective" | "verb" | "noun" | "phrase" | "collocation";
 export type Difficulty = "Core" | "Medium" | "Advanced";
 export type ExamRelevance = "High" | "Medium" | "Supporting";
 export type SourceType = "dictionary" | "grammar_reference" | "tutor_review";
@@ -67,7 +70,7 @@ export type LearningPackage = {
   questions: QuizQuestion[];
 };
 
-type SeedEntry = {
+export type SeedEntry = {
   phrase: string;
   pattern: CollocationPattern;
   meaning: string;
@@ -78,11 +81,11 @@ type SeedEntry = {
   examRelevance?: ExamRelevance;
 };
 
-const EXPECTED_ENTRY_TOTAL = 100;
+const EXPECTED_ENTRY_TOTAL = 300;
 const QUESTIONS_PER_PACKAGE = 10;
 const OPTION_KEYS: OptionKey[] = ["A", "B", "C", "D"];
 
-const seeds: SeedEntry[] = [
+const coreSeeds: SeedEntry[] = [
   { phrase: "afraid of", pattern: "adjective_preposition", meaning: "takut pada", example: "She is afraid of spiders.", translation: "Dia takut pada laba-laba.", topic: "emotion", difficulty: "Core", examRelevance: "High" },
   { phrase: "aware of", pattern: "adjective_preposition", meaning: "sadar akan", example: "Students are aware of the deadline.", translation: "Siswa sadar akan tenggat waktu.", topic: "study", difficulty: "Core", examRelevance: "High" },
   { phrase: "capable of", pattern: "adjective_preposition", meaning: "mampu melakukan", example: "The device is capable of storing large files.", translation: "Perangkat itu mampu menyimpan file besar.", topic: "technology", examRelevance: "High" },
@@ -185,15 +188,26 @@ const seeds: SeedEntry[] = [
   { phrase: "distinguish between", pattern: "verb_preposition", meaning: "membedakan antara", example: "Learners distinguish between similar prepositions.", translation: "Pembelajar membedakan antara preposisi yang mirip.", topic: "grammar", difficulty: "Advanced", examRelevance: "High" },
 ];
 
+const seeds: SeedEntry[] = [...coreSeeds, ...additionalCollocationSeeds];
+
 function getPartOfSpeech(pattern: CollocationPattern): PartOfSpeech {
   if (pattern === "adjective_preposition") return "adjective";
   if (pattern === "noun_preposition") return "noun";
   if (pattern === "prepositional_phrase") return "phrase";
+  if (pattern === "lexical_collocation") return "collocation";
   return "verb";
 }
 
-function splitPhrase(phrase: string) {
+function splitPhrase(phrase: string, pattern: CollocationPattern) {
   const parts = phrase.split(" ");
+
+  if (pattern === "lexical_collocation") {
+    return {
+      headword: parts.at(0) ?? "",
+      partner: parts.slice(1).join(" "),
+    };
+  }
+
   const partner = parts.at(-1) ?? "";
   return {
     headword: parts.slice(0, -1).join(" "),
@@ -202,6 +216,10 @@ function splitPhrase(phrase: string) {
 }
 
 function createUsageNote(entry: SeedEntry) {
+  if (entry.pattern === "lexical_collocation") {
+    return `Kolokasi "${entry.phrase}" adalah pasangan kata yang lazim dipakai bersama; mengganti salah satu unsur sering membuat frasa terdengar kurang natural.`;
+  }
+
   if (entry.pattern === "phrasal_verb") {
     return `Pelajari "${entry.phrase}" sebagai satu unit makna; preposisi/partikelnya tidak bisa ditebak langsung dari terjemahan kata per kata.`;
   }
@@ -210,16 +228,21 @@ function createUsageNote(entry: SeedEntry) {
     return `"${entry.phrase}" adalah frasa preposisional tetap yang menunjukkan hubungan posisi atau konteks.`;
   }
 
-  return `Pasangan "${entry.phrase}" adalah dependent preposition: kata utamanya lazim diikuti "${splitPhrase(entry.phrase).partner}" dalam konteks ini.`;
+  return `Pasangan "${entry.phrase}" adalah dependent preposition: kata utamanya lazim diikuti "${splitPhrase(entry.phrase, entry.pattern).partner}" dalam konteks ini.`;
 }
 
 function createCommonMistake(entry: SeedEntry) {
-  const { headword, partner } = splitPhrase(entry.phrase);
+  const { headword, partner } = splitPhrase(entry.phrase, entry.pattern);
+
+  if (entry.pattern === "lexical_collocation") {
+    return `Jangan menerjemahkan "${entry.phrase}" secara kata per kata; gunakan pasangan "${headword}" dan "${partner}" sebagai frasa natural dalam konteks ini.`;
+  }
+
   return `Jangan mengganti "${partner}" secara otomatis setelah "${headword}"; cek konteks karena preposisi lain bisa mengubah makna atau terdengar tidak natural.`;
 }
 
 export const collocationEntries: CollocationEntry[] = seeds.map((seed, index) => {
-  const { headword, partner } = splitPhrase(seed.phrase);
+  const { headword, partner } = splitPhrase(seed.phrase, seed.pattern);
   const slug = seed.phrase.replaceAll(" ", "-");
 
   return {
@@ -252,22 +275,78 @@ export const collocationEntries: CollocationEntry[] = seeds.map((seed, index) =>
 const distractorPool: Record<string, string[]> = {
   about: ["of", "on", "with"],
   after: ["for", "at", "to"],
+  against: ["for", "with", "to"],
+  around: ["about", "with", "to"],
   at: ["in", "on", "to"],
   between: ["among", "with", "from"],
+  by: ["with", "for", "of"],
   for: ["to", "of", "on"],
   from: ["of", "with", "in"],
   in: ["on", "at", "to"],
+  into: ["in", "to", "on"],
   of: ["on", "for", "in"],
   on: ["in", "to", "with"],
   to: ["for", "with", "of"],
   toward: ["to", "with", "about"],
+  through: ["with", "from", "into"],
   with: ["to", "of", "for"],
 };
 
+const lexicalDistractorPool: Record<string, string[]> = {
+  basic: ["major", "quick", "serious"],
+  clear: ["heavy", "deep", "public"],
+  common: ["major", "basic", "serious"],
+  customer: ["student", "public", "private"],
+  deep: ["strong", "heavy", "high"],
+  do: ["make", "take", "give"],
+  draw: ["make", "take", "give"],
+  economic: ["social", "public", "private"],
+  environmental: ["economic", "social", "public"],
+  final: ["heavy", "deep", "basic"],
+  give: ["make", "take", "do"],
+  have: ["make", "take", "do"],
+  heavy: ["strong", "deep", "high"],
+  high: ["low", "basic", "common"],
+  keep: ["make", "take", "give"],
+  key: ["heavy", "deep", "basic"],
+  low: ["high", "strong", "major"],
+  major: ["common", "basic", "quick"],
+  make: ["do", "take", "give"],
+  pay: ["make", "take", "give"],
+  private: ["public", "social", "common"],
+  public: ["private", "social", "economic"],
+  quick: ["heavy", "deep", "basic"],
+  reach: ["make", "take", "give"],
+  serious: ["common", "basic", "quick"],
+  set: ["make", "take", "give"],
+  social: ["public", "private", "economic"],
+  strong: ["heavy", "deep", "high"],
+  student: ["customer", "public", "private"],
+  take: ["make", "do", "give"],
+};
+
+const fallbackLexicalDistractors = ["make", "take", "give", "strong", "heavy", "public"];
+
+function getQuizAnswer(entry: CollocationEntry) {
+  return entry.pattern === "lexical_collocation" ? entry.headword : entry.partner;
+}
+
+function getDistractors(entry: CollocationEntry) {
+  const answer = getQuizAnswer(entry);
+  const source =
+    entry.pattern === "lexical_collocation"
+      ? (lexicalDistractorPool[answer] ?? fallbackLexicalDistractors)
+      : (distractorPool[answer] ?? ["of", "to", "on", "in", "with", "for"]);
+
+  return [...source, ...fallbackLexicalDistractors]
+    .filter((value, index, values) => value !== answer && values.indexOf(value) === index)
+    .slice(0, 3);
+}
+
 function buildOptions(entry: CollocationEntry, answerIndex: number): QuizOption[] {
-  const distractors = distractorPool[entry.partner] ?? ["of", "to", "on"];
+  const distractors = getDistractors(entry);
   const values = [...distractors.slice(0, 3)];
-  values.splice(answerIndex, 0, entry.partner);
+  values.splice(answerIndex, 0, getQuizAnswer(entry));
 
   return OPTION_KEYS.map((key, index) => ({
     key,
@@ -276,16 +355,17 @@ function buildOptions(entry: CollocationEntry, answerIndex: number): QuizOption[
 }
 
 function createQuestionPrompt(entry: CollocationEntry) {
-  const escaped = entry.partner.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const escaped = getQuizAnswer(entry).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const blanked = entry.exampleSentence.replace(new RegExp(`\\b${escaped}\\b`, "i"), "___");
 
-  return `${blanked} Pilih preposisi/pelengkap yang paling tepat.`;
+  return `${blanked} Pilih kata/pelengkap yang paling natural.`;
 }
 
 function buildQuestion(entry: CollocationEntry, packageId: string, index: number): QuizQuestion {
   const answerIndex = index % OPTION_KEYS.length;
   const options = buildOptions(entry, answerIndex);
-  const correctKey = options.find((option) => option.text === entry.partner)?.key;
+  const answer = getQuizAnswer(entry);
+  const correctKey = options.find((option) => option.text === answer)?.key;
 
   if (!correctKey) {
     throw new Error(`Missing answer key for ${entry.fullPhrase}`);
@@ -295,11 +375,16 @@ function buildQuestion(entry: CollocationEntry, packageId: string, index: number
     id: `${packageId}-q${String((index % QUESTIONS_PER_PACKAGE) + 1).padStart(2, "0")}`,
     entryId: entry.id,
     packageId,
-    questionType: index % 5 === 0 ? "sentence_completion" : "missing_preposition",
+    questionType:
+      entry.pattern === "lexical_collocation"
+        ? "sentence_completion"
+        : index % 5 === 0
+          ? "sentence_completion"
+          : "missing_preposition",
     prompt: createQuestionPrompt(entry),
     options,
     correctKey,
-    explanation: `${entry.fullPhrase} berarti "${entry.indonesianMeaning}". Dalam contoh "${entry.exampleSentence}", pasangan yang natural adalah "${entry.fullPhrase}". Jawaban yang tepat adalah ${correctKey} (${entry.partner}). ${entry.usageNote}`,
+    explanation: `${entry.fullPhrase} berarti "${entry.indonesianMeaning}". Dalam contoh "${entry.exampleSentence}", pasangan yang natural adalah "${entry.fullPhrase}". Jawaban yang tepat adalah ${correctKey} (${answer}). ${entry.usageNote}`,
   };
 }
 
@@ -345,6 +430,7 @@ export const contentStats = {
       noun_preposition: 0,
       phrasal_verb: 0,
       prepositional_phrase: 0,
+      lexical_collocation: 0,
     },
   ),
 };

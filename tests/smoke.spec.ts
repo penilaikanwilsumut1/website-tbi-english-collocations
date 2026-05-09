@@ -8,7 +8,7 @@ test("dashboard exposes the Persiapantubel collocations shell", async ({ page })
   await expect(page.getByRole("heading", { name: "TBI - English Collocations" })).toBeVisible();
   await expect(page.getByRole("navigation", { name: "Navigasi utama" })).toBeVisible();
   await expect(page.getByText("Collocation Bank")).toBeVisible();
-  await expect(page.getByText("100", { exact: true })).toBeVisible();
+  await expect(page.getByText("300", { exact: true })).toBeVisible();
 });
 
 test("search finds phrases, partners, and Indonesian meaning", async ({ page }) => {
@@ -18,6 +18,10 @@ test("search finds phrases, partners, and Indonesian meaning", async ({ page }) 
 
   await expect(page.getByRole("heading", { name: "consist of" })).toBeVisible();
   await expect(page.getByText(/terdiri dari/i)).toBeVisible();
+
+  await page.getByRole("searchbox", { name: "Cari collocation" }).fill("make a decision");
+  await expect(page.getByRole("heading", { name: "make a decision" })).toBeVisible();
+  await expect(page.getByText(/membuat keputusan/i)).toBeVisible();
 });
 
 test("material and flipcard share package rail behavior", async ({ page }) => {
@@ -39,7 +43,7 @@ test("test package saves answers and locks after final submit", async ({ page })
   await page.goto("/");
   await page.getByRole("button", { name: /^Tes$/i }).click();
 
-  await expect(page.getByText(/Coverage: 10\/100 collocation bank/i)).toBeVisible();
+  await expect(page.getByText(/Coverage: 10\/300 collocation bank/i)).toBeVisible();
 
   await page
     .locator("#question-collocation-practice-01-q01")
