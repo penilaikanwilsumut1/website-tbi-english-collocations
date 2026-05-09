@@ -1,4 +1,5 @@
 import { additionalCollocationSeeds } from "./additional-collocation-seeds";
+import { extraCollocationSeeds } from "./extra-collocation-seeds";
 
 export type CollocationPattern =
   | "adjective_preposition"
@@ -81,7 +82,7 @@ export type SeedEntry = {
   examRelevance?: ExamRelevance;
 };
 
-const EXPECTED_ENTRY_TOTAL = 300;
+const EXPECTED_ENTRY_TOTAL = 450;
 const QUESTIONS_PER_PACKAGE = 10;
 const OPTION_KEYS: OptionKey[] = ["A", "B", "C", "D"];
 
@@ -188,7 +189,11 @@ const coreSeeds: SeedEntry[] = [
   { phrase: "distinguish between", pattern: "verb_preposition", meaning: "membedakan antara", example: "Learners distinguish between similar prepositions.", translation: "Pembelajar membedakan antara preposisi yang mirip.", topic: "grammar", difficulty: "Advanced", examRelevance: "High" },
 ];
 
-const seeds: SeedEntry[] = [...coreSeeds, ...additionalCollocationSeeds];
+const seeds: SeedEntry[] = [
+  ...coreSeeds,
+  ...additionalCollocationSeeds,
+  ...extraCollocationSeeds,
+];
 
 function getPartOfSpeech(pattern: CollocationPattern): PartOfSpeech {
   if (pattern === "adjective_preposition") return "adjective";
@@ -277,6 +282,7 @@ const distractorPool: Record<string, string[]> = {
   after: ["for", "at", "to"],
   against: ["for", "with", "to"],
   around: ["about", "with", "to"],
+  as: ["of", "to", "with"],
   at: ["in", "on", "to"],
   between: ["among", "with", "from"],
   by: ["with", "for", "of"],
@@ -286,9 +292,11 @@ const distractorPool: Record<string, string[]> = {
   into: ["in", "to", "on"],
   of: ["on", "for", "in"],
   on: ["in", "to", "with"],
+  over: ["on", "about", "with"],
   to: ["for", "with", "of"],
   toward: ["to", "with", "about"],
   through: ["with", "from", "into"],
+  up: ["out", "off", "in"],
   with: ["to", "of", "for"],
 };
 
@@ -296,13 +304,17 @@ const lexicalDistractorPool: Record<string, string[]> = {
   basic: ["major", "quick", "serious"],
   clear: ["heavy", "deep", "public"],
   common: ["major", "basic", "serious"],
+  conduct: ["make", "do", "give"],
   customer: ["student", "public", "private"],
   deep: ["strong", "heavy", "high"],
+  deliver: ["make", "take", "give"],
   do: ["make", "take", "give"],
   draw: ["make", "take", "give"],
+  express: ["make", "take", "give"],
   economic: ["social", "public", "private"],
   environmental: ["economic", "social", "public"],
   final: ["heavy", "deep", "basic"],
+  gain: ["make", "take", "give"],
   give: ["make", "take", "do"],
   have: ["make", "take", "do"],
   heavy: ["strong", "deep", "high"],
@@ -312,10 +324,13 @@ const lexicalDistractorPool: Record<string, string[]> = {
   low: ["high", "strong", "major"],
   major: ["common", "basic", "quick"],
   make: ["do", "take", "give"],
+  meet: ["make", "take", "give"],
   pay: ["make", "take", "give"],
+  provide: ["make", "take", "give"],
   private: ["public", "social", "common"],
   public: ["private", "social", "economic"],
   quick: ["heavy", "deep", "basic"],
+  reduce: ["make", "take", "give"],
   reach: ["make", "take", "give"],
   serious: ["common", "basic", "quick"],
   set: ["make", "take", "give"],
