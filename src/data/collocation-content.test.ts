@@ -9,20 +9,20 @@ import {
 
 describe("TBI English Collocations content", () => {
   it("keeps the reviewed MVP content shape", () => {
-    expect(contentStats.totalEntries).toBe(450);
-    expect(contentStats.totalPackages).toBe(45);
-    expect(contentStats.totalQuestions).toBe(450);
-    expect(contentStats.patternCounts.adjective_preposition).toBeGreaterThanOrEqual(30);
-    expect(contentStats.patternCounts.verb_preposition).toBeGreaterThanOrEqual(40);
-    expect(contentStats.patternCounts.noun_preposition).toBeGreaterThanOrEqual(10);
-    expect(contentStats.patternCounts.phrasal_verb).toBeGreaterThanOrEqual(3);
-    expect(contentStats.patternCounts.prepositional_phrase).toBeGreaterThanOrEqual(1);
-    expect(contentStats.patternCounts.lexical_collocation).toBeGreaterThanOrEqual(200);
+    expect(contentStats.totalEntries).toBe(600);
+    expect(contentStats.totalPackages).toBe(60);
+    expect(contentStats.totalQuestions).toBe(600);
+    expect(contentStats.patternCounts.adjective_preposition).toBeGreaterThanOrEqual(120);
+    expect(contentStats.patternCounts.verb_preposition).toBeGreaterThanOrEqual(140);
+    expect(contentStats.patternCounts.noun_preposition).toBeGreaterThanOrEqual(65);
+    expect(contentStats.patternCounts.prepositional_phrase).toBeGreaterThanOrEqual(25);
+    expect(contentStats.patternCounts.phrasal_verb).toBe(16);
+    expect(contentStats.patternCounts.lexical_collocation).toBe(210);
   });
 
   it("keeps ids, phrases, examples, and evidence fields complete", () => {
-    expect(new Set(collocationEntries.map((entry) => entry.id)).size).toBe(450);
-    expect(new Set(collocationEntries.map((entry) => entry.fullPhrase)).size).toBe(450);
+    expect(new Set(collocationEntries.map((entry) => entry.id)).size).toBe(600);
+    expect(new Set(collocationEntries.map((entry) => entry.fullPhrase)).size).toBe(600);
 
     for (const entry of collocationEntries) {
       expect(entry.headword).toBeTruthy();
@@ -41,12 +41,12 @@ describe("TBI English Collocations content", () => {
   });
 
   it("builds complete neutral packages", () => {
-    expect(learningPackages).toHaveLength(45);
-    expect(testPackages).toHaveLength(45);
+    expect(learningPackages).toHaveLength(60);
+    expect(testPackages).toHaveLength(60);
     expect(learningPackages.map((item) => item.order)).toEqual(
-      Array.from({ length: 45 }, (_, index) => index + 1),
+      Array.from({ length: 60 }, (_, index) => index + 1),
     );
-    expect(learningPackages.flatMap((item) => item.entries)).toHaveLength(450);
+    expect(learningPackages.flatMap((item) => item.entries)).toHaveLength(600);
 
     for (const item of learningPackages) {
       expect(item.title).toMatch(/^Collocation Practice \d{2}$/);
@@ -74,7 +74,7 @@ describe("TBI English Collocations content", () => {
     }
 
     const counts = Object.values(answerCounts);
-    expect(counts.reduce((total, value) => total + value, 0)).toBe(450);
+    expect(counts.reduce((total, value) => total + value, 0)).toBe(600);
     expect(Math.max(...counts) - Math.min(...counts)).toBeLessThanOrEqual(1);
   });
 });

@@ -1,5 +1,6 @@
 import { additionalCollocationSeeds } from "./additional-collocation-seeds";
 import { extraCollocationSeeds } from "./extra-collocation-seeds";
+import { prepositionCollocationSeeds } from "./preposition-collocation-seeds";
 
 export type CollocationPattern =
   | "adjective_preposition"
@@ -82,7 +83,7 @@ export type SeedEntry = {
   examRelevance?: ExamRelevance;
 };
 
-const EXPECTED_ENTRY_TOTAL = 450;
+const EXPECTED_ENTRY_TOTAL = 600;
 const QUESTIONS_PER_PACKAGE = 10;
 const OPTION_KEYS: OptionKey[] = ["A", "B", "C", "D"];
 
@@ -193,6 +194,7 @@ const seeds: SeedEntry[] = [
   ...coreSeeds,
   ...additionalCollocationSeeds,
   ...extraCollocationSeeds,
+  ...prepositionCollocationSeeds,
 ];
 
 function getPartOfSpeech(pattern: CollocationPattern): PartOfSpeech {
